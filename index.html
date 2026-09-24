@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beverage Event Calculator</title>
+<style>
+  :root {
+    --bg: #f5f6fa;
+    --card-bg: #ffffff;
+    --text: #1a1d23;
+    --text-muted: #6b7280;
+    --border: #e5e7eb;
+    --accent: #4f46e5;
+    --accent-light: #eef2ff;
+    --profit: #16a34a;
+    --loss: #dc2626;
+    --radius: 14px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  header {
+    padding: 32px 24px 8px;
+    text-align: center;
+  }
+
+  header h1 {
+    margin: 0 0 6px;
+    font-size: 1.6rem;
+    font-weight: 700;
+  }
+
+  header p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  @media (max-width: 720px) {
+    .container {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px;
+  }
+
+  .card h2 {
+    margin: 0 0 16px;
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+
+  .field {
+    margin-bottom: 16px;
+  }
+
+  .field:last-child {
+    margin-bottom: 0;
+  }
+
+  label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .input-wrap {
+    position: relative;
+  }
+
+  .prefix {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    pointer-events: none;
+  }
+
+  input[type="number"] {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #fafafa;
+    color: var(--text);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  input[type="number"].with-prefix {
+    padding-left: 38px;
+  }
+
+  input[type="number"]:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-light);
+    background: #fff;
+  }
+
+  .results {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .result-row:last-child {
+    border-bottom: none;
+  }
+
+  .result-label {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .result-value {
+    font-weight: 600;
+    font-size: 1rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .highlight {
+    background: var(--accent-light);
+    border-radius: 10px;
+    padding: 16px;
+    margin-top: 4px;
+  }
+
+  .highlight .result-row {
+    border-bottom: none;
+    padding: 4px 0;
+  }
+
+  .highlight .result-label {
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .highlight .result-value {
+    font-size: 1.3rem;
+  }
+
+  .profit-positive { color: var(--profit); }
+  .profit-negative { color: var(--loss); }
+
+  .note {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 12px;
+    line-height: 1.4;
+  }
+
+  footer {
+    text-align: center;
+    padding: 16px 24px 32px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🥤 Beverage Event Calculator</h1>
+  <p>Estimate revenue, cost, and profit for your beverage event — in seconds.</p>
+</header>
+
+<div class="container">
+
+  <div class="card">
+    <h2>Event Details</h2>
+
+    <div class="field">
+      <label for="guests">Number of guests</label>
+      <input type="number" id="guests" min="0" step="1" value="100">
+    </div>
+
+    <div class="field">
+      <label for="drinksPerGuest">Drinks per guest</label>
+      <input type="number" id="drinksPerGuest" min="0" step="0.1" value="2">
+    </div>
+
+    <div class="field">
+      <label for="sellingPrice">Selling price per drink</label>
+      <div class="input-wrap">
+        <span class="prefix">RM</span>
+        <input type="number" id="sellingPrice" class="with-prefix" min="0" step="0.01" value="8">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="ingredientCost">Ingredient cost per drink</label>
+      <div class="input-wrap">
+        <span class="prefix">RM</span>
+        <input type="number" id="ingredientCost" class="with-prefix" min="0" step="0.01" value="2.5">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="staffCost">Staff cost</label>
+      <div class="input-wrap">
+        <span class="prefix">RM</span>
+        <input type="number" id="staffCost" class="with-prefix" min="0" step="0.01" value="200">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="transportCost">Transport cost</label>
+      <div class="input-wrap">
+        <span class="prefix">RM</span>
+        <input type="number" id="transportCost" class="with-prefix" min="0" step="0.01" value="50">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="equipmentCost">Equipment cost</label>
+      <div class="input-wrap">
+        <span class="prefix">RM</span>
+        <input type="number" id="equipmentCost" class="with-prefix" min="0" step="0.01" value="100">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="otherCost">Other costs</label>
+      <div class="input-wrap">
+        <span class="prefix">RM</span>
+        <input type="number" id="otherCost" class="with-prefix" min="0" step="0.01" value="0">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Projected Results</h2>
+
+    <div class="results">
+      <div class="result-row">
+        <span class="result-label">Total drinks required</span>
+        <span class="result-value" id="totalDrinks">0</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Projected revenue</span>
+        <span class="result-value" id="revenue">RM 0.00</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Total ingredient cost</span>
+        <span class="result-value" id="ingredientTotal">RM 0.00</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Total event cost</span>
+        <span class="result-value" id="totalCost">RM 0.00</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Break-even drinks</span>
+        <span class="result-value" id="breakEven">0</span>
+      </div>
+
+      <div class="highlight">
+        <div class="result-row">
+          <span class="result-label">Projected gross profit</span>
+          <span class="result-value" id="grossProfit">RM 0.00</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">Profit margin</span>
+          <span class="result-value" id="profitMargin">0%</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="note" id="warning"></p>
+  </div>
+
+</div>
+
+<footer>
+  Figures are estimates only. All amounts in Malaysian Ringgit (MYR).
+</footer>
+
+<script>
+  const ids = [
+    "guests", "drinksPerGuest", "sellingPrice", "ingredientCost",
+    "staffCost", "transportCost", "equipmentCost", "otherCost"
+  ];
+
+  const fields = Object.fromEntries(ids.map(id => [id, document.getElementById(id)]));
+
+  const out = {
+    totalDrinks: document.getElementById("totalDrinks"),
+    revenue: document.getElementById("revenue"),
+    ingredientTotal: document.getElementById("ingredientTotal"),
+    totalCost: document.getElementById("totalCost"),
+    breakEven: document.getElementById("breakEven"),
+    grossProfit: document.getElementById("grossProfit"),
+    profitMargin: document.getElementById("profitMargin"),
+    warning: document.getElementById("warning"),
+  };
+
+  const currency = new Intl.NumberFormat("en-MY", {
+    style: "currency",
+    currency: "MYR",
+    minimumFractionDigits: 2,
+  });
+
+  function num(field) {
+    const v = parseFloat(field.value);
+    return Number.isFinite(v) && v >= 0 ? v : 0;
+  }
+
+  function calculate() {
+    const guests = num(fields.guests);
+    const drinksPerGuest = num(fields.drinksPerGuest);
+    const sellingPrice = num(fields.sellingPrice);
+    const ingredientCost = num(fields.ingredientCost);
+    const staffCost = num(fields.staffCost);
+    const transportCost = num(fields.transportCost);
+    const equipmentCost = num(fields.equipmentCost);
+    const otherCost = num(fields.otherCost);
+
+    const totalDrinks = guests * drinksPerGuest;
+    const revenue = totalDrinks * sellingPrice;
+    const ingredientTotal = totalDrinks * ingredientCost;
+    const fixedCosts = staffCost + transportCost + equipmentCost + otherCost;
+    const totalCost = ingredientTotal + fixedCosts;
+    const grossProfit = revenue - totalCost;
+    const profitMargin = revenue > 0 ? (grossProfit / revenue) * 100 : 0;
+
+    const marginPerDrink = sellingPrice - ingredientCost;
+    let breakEvenText;
+    if (marginPerDrink > 0) {
+      const breakEvenDrinks = Math.ceil(fixedCosts / marginPerDrink);
+      breakEvenText = breakEvenDrinks.toLocaleString();
+    } else {
+      breakEvenText = "—";
+    }
+
+    out.totalDrinks.textContent = Math.round(totalDrinks).toLocaleString();
+    out.revenue.textContent = currency.format(revenue);
+    out.ingredientTotal.textContent = currency.format(ingredientTotal);
+    out.totalCost.textContent = currency.format(totalCost);
+    out.breakEven.textContent = breakEvenText;
+    out.grossProfit.textContent = currency.format(grossProfit);
+    out.grossProfit.className = "result-value " + (grossProfit >= 0 ? "profit-positive" : "profit-negative");
+    out.profitMargin.textContent = profitMargin.toFixed(1) + "%";
+    out.profitMargin.className = "result-value " + (profitMargin >= 0 ? "profit-positive" : "profit-negative");
+
+    if (marginPerDrink <= 0) {
+      out.warning.textContent = "Selling price is at or below ingredient cost per drink — this event cannot break even regardless of volume.";
+    } else {
+      out.warning.textContent = "";
+    }
+  }
+
+  ids.forEach(id => fields[id].addEventListener("input", calculate));
+  calculate();
+</script>
+
+</body>
+</html>
