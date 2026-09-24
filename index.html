@@ -300,6 +300,10 @@
           <span class="result-label">Profit margin</span>
           <span class="result-value" id="profitMargin">0%</span>
         </div>
+        <div class="result-row">
+          <span class="result-label">Profit per guest</span>
+          <span class="result-value" id="profitPerGuest">RM 0.00</span>
+        </div>
       </div>
     </div>
 
@@ -328,6 +332,7 @@
     breakEven: document.getElementById("breakEven"),
     grossProfit: document.getElementById("grossProfit"),
     profitMargin: document.getElementById("profitMargin"),
+    profitPerGuest: document.getElementById("profitPerGuest"),
     warning: document.getElementById("warning"),
   };
 
@@ -359,6 +364,7 @@
     const totalCost = ingredientTotal + fixedCosts;
     const grossProfit = revenue - totalCost;
     const profitMargin = revenue > 0 ? (grossProfit / revenue) * 100 : 0;
+    const profitPerGuest = guests > 0 ? grossProfit / guests : 0;
 
     const marginPerDrink = sellingPrice - ingredientCost;
     let breakEvenText;
@@ -378,6 +384,8 @@
     out.grossProfit.className = "result-value " + (grossProfit >= 0 ? "profit-positive" : "profit-negative");
     out.profitMargin.textContent = profitMargin.toFixed(1) + "%";
     out.profitMargin.className = "result-value " + (profitMargin >= 0 ? "profit-positive" : "profit-negative");
+    out.profitPerGuest.textContent = currency.format(profitPerGuest);
+    out.profitPerGuest.className = "result-value " + (profitPerGuest >= 0 ? "profit-positive" : "profit-negative");
 
     if (marginPerDrink <= 0) {
       out.warning.textContent = "Selling price is at or below ingredient cost per drink — this event cannot break even regardless of volume.";
